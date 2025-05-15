@@ -1,0 +1,13 @@
+<configuration>
+  <client>
+    <server>
+      <address>192.168.254.129</address>
+      <port>1514</port>
+      <protocol>udp</protocol>
+    </server>
+  </client>
+  <localfile>
+    <log_format>eventlog</log_format>
+    <location>Security</location>
+  </localfile>
+</configuration>

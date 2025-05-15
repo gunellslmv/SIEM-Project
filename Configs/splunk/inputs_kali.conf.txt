@@ -1,0 +1,9 @@
+[monitor:///var/log/auth.log]
+disabled = false
+index = main
+sourcetype = linux_secure
+
+[monitor:///var/log/vsftpd.log]
+disabled = false
+index = main
+sourcetype = vsftpd_log

@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# wazuh_setup.sh
+# Script to automate Wazuh SIEM setup on Ubuntu Server for SIEM Lab Project
+# Author: Gunel Salamova
+# Version: 1.0
+# Date: May 15, 2025
+
+# Configuration variables
+WAZUH_VERSION="4.11"
+WAZUH_INSTALL_URL="https://packages.wazuh.com/4.11/wazuh-install.sh"
+INSTALL_DIR="/opt"
+WAZUH_HOME="/var/ossec"
+DASHBOARD_PORT="443"
+HOST_ONLY_IP="192.168.254.129"
+LOG_FILE="/var/log/wazuh_setup.log"
+
+# Function to log messages
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Function to check if command was successful
+check_error() {
+    if [ $? -ne 0 ]; then
+        log "ERROR: $1"
+        exit 1
+    fi
+}
+
+# Check if script is run with sudo
+if [ "$EUID" -ne 0 ]; then
+    log "This script must be run as root (use sudo)"
+    exit 1
+fi
+
+# Create log file if it doesn't exist
+touch "$LOG_FILE"
+check_error "Failed to create log file"
+
+log "Starting Wazuh SIEM setup..."
+
+# Step 1: Install dependencies
+log "Installing required dependencies..."
+apt-get update -y
+apt-get install -y curl
+check_error "Failed to install dependencies"
+
+# Step 2: Download Wazuh installation script
+log "Downloading Wazuh installation script (${WAZUH_VERSION})..."
+curl -sO "$WAZUH_INSTALL_URL"
+check_error "Failed to download Wazuh installation script"
+mv wazuh-install.sh /tmp/wazuh-install.sh
+chmod +x /tmp/wazuh-install.sh
+check_error "Failed to set execute permissions on Wazuh installation script"
+
+# Step 3: Run Wazuh installation
+log "Running Wazuh installation (manager, indexer, and dashboard)..."
+/tmp/wazuh-install.sh
+check_error "Failed to install Wazuh"
+
+# Step 4: Extract admin credentials from installation output
+log "Extracting Wazuh dashboard credentials..."
+CREDENTIALS_FILE="/tmp/wazuh-installation-credentials.txt"
+if [ -f "${WAZUH_HOME}/logs/install.log" ]; then
+    grep -A 2 "Wazuh dashboard credentials" "${WAZUH_HOME}/logs/install.log" > "$CREDENTIALS_FILE"
+    check_error "Failed to extract credentials"
+else
+    log "ERROR: Installation log file not found"
+    exit 1
+fi
+
+# Step 5: Verify Wazuh services are running
+log "Verifying Wazuh services..."
+if systemctl is-active --quiet wazuh-manager && systemctl is-active --quiet wazuh-indexer && systemctl is-active --quiet wazuh-dashboard; then
+    log "Wazuh manager, indexer, and dashboard services are running"
+else
+    log "ERROR: One or more Wazuh services are not running"
+    exit 1
+fi
+
+# Step 6: Verify dashboard accessibility
+log "Checking Wazuh dashboard accessibility..."
+if netstat -tuln | grep -q ":${DASHBOARD_PORT}"; then
+    log "Wazuh dashboard is accessible at https://${HOST_ONLY_IP}:${DASHBOARD_PORT}"
+else
+    log "ERROR: Wazuh dashboard is not running on port ${DASHBOARD_PORT}"
+    exit 1
+fi
+
+# Step 7: Clean up
+log "Cleaning up temporary files..."
+rm -f /tmp/wazuh-install.sh
+check_error "Failed to clean up temporary files"
+
+# Step 8: Display access instructions
+log "Wazuh setup completed successfully!"
+echo "------------------------------------------------"
+echo "Access Wazuh Dashboard:"
+echo "URL: https://${HOST_ONLY_IP}:${DASHBOARD_PORT}"
+echo "Credentials: See ${CREDENTIALS_FILE} for admin username and password"
+echo "Logs: ${LOG_FILE}"
+echo "------------------------------------------------"
+cat "$CREDENTIALS_FILE"
+echo "------------------------------------------------"
+
+exit 0

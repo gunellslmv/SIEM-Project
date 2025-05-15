@@ -1,0 +1,17 @@
+<configuration>
+  <client>
+    <server>
+      <address>192.168.254.129</address>
+      <port>1514</port>
+      <protocol>udp</protocol>
+    </server>
+  </client>
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/auth.log</location>
+  </localfile>
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/vsftpd.log</location>
+  </localfile>
+</configuration>

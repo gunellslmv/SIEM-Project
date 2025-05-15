@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# splunk_setup.sh
+# Script to automate Splunk Enterprise setup on Ubuntu Server for SIEM Lab Project
+# Author: Gunel Salamova
+# Version: 1.0
+# Date: May 15, 2025
+
+# Configuration variables
+SPLUNK_VERSION="9.2.1-78803dd9f5ec"
+SPLUNK_FILE="splunk-${SPLUNK_VERSION}-Linux-x86_64.tgz"
+SPLUNK_URL="https://download.splunk.com/products/splunk/releases/9.2.1/linux/${SPLUNK_FILE}"
+INSTALL_DIR="/opt"
+SPLUNK_HOME="${INSTALL_DIR}/splunk"
+ADMIN_USER="splunk"
+ADMIN_PASS="salam123"
+RECEIVING_PORT="9997"
+WEB_PORT="8000"
+HOST_ONLY_IP="192.168.254.129"
+LOG_FILE="/var/log/splunk_setup.log"
+
+# Function to log messages
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Function to check if command was successful
+check_error() {
+    if [ $? -ne 0 ]; then
+        log "ERROR: $1"
+        exit 1
+    fi
+}
+
+# Check if script is run with sudo
+if [ "$EUID" -ne 0 ]; then
+    log "This script must be run as root (use sudo)"
+    exit 1
+fi
+
+# Create log file if it doesn't exist
+touch "$LOG_FILE"
+check_error "Failed to create log file"
+
+log "Starting Splunk Enterprise setup..."
+
+# Step 1: Install dependencies
+log "Installing required dependencies..."
+apt-get update -y
+apt-get install -y wget
+check_error "Failed to install dependencies"
+
+# Step 2: Download Splunk
+log "Downloading Splunk Enterprise (${SPLUNK_VERSION})..."
+wget -O "/tmp/${SPLUNK_FILE}" "$SPLUNK_URL"
+check_error "Failed to download Splunk"
+
+# Step 3: Extract Splunk to /opt
+log "Extracting Splunk to ${INSTALL_DIR}..."
+tar -xvzf "/tmp/${SPLUNK_FILE}" -C "$INSTALL_DIR"
+check_error "Failed to extract Splunk"
+rm -f "/tmp/${SPLUNK_FILE}"
+log "Cleaned up downloaded tar file"
+
+# Step 4: Start Splunk and accept license
+log "Starting Splunk for the first time..."
+cd "${SPLUNK_HOME}/bin" || check_error "Failed to navigate to Splunk bin directory"
+./splunk start --accept-license --answer-yes --no-prompt --seed-passwd "$ADMIN_PASS"
+check_error "Failed to start Splunk"
+
+# Step 5: Enable Splunk to start on boot
+log "Enabling Splunk to start on boot..."
+./splunk enable boot-start -user "$ADMIN_USER"
+check_error "Failed to enable Splunk boot-start"
+
+# Step 6: Configure receiving port for forwarders
+log "Configuring Splunk to receive logs on port ${RECEIVING_PORT}..."
+./splunk enable listen "$RECEIVING_PORT" -auth "${ADMIN_USER}:${ADMIN_PASS}"
+check_error "Failed to configure receiving port"
+
+# Step 7: Verify Splunk is running
+log "Verifying Splunk service..."
+if netstat -tuln | grep -q ":${WEB_PORT}"; then
+    log "Splunk is running and accessible at http://${HOST_ONLY_IP}:${WEB_PORT}"
+else
+    log "ERROR: Splunk web interface is not running"
+    exit 1
+fi
+
+# Step 8: Display access instructions
+log "Splunk setup completed successfully!"
+echo "------------------------------------------------"
+echo "Access Splunk Web Interface:"
+echo "URL: http://${HOST_ONLY_IP}:${WEB_PORT}"
+echo "Username: ${ADMIN_USER}"
+echo "Password: ${ADMIN_PASS}"
+echo "Logs: ${LOG_FILE}"
+echo "Receiving Port for Forwarders: ${RECEIVING_PORT}"
+echo "------------------------------------------------"
+
+exit 0
