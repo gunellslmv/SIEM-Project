@@ -28,7 +28,7 @@ The lab is configured with the following machines on the 192.168.254.0/24 intern
 - The SIEM Server acts as the gateway for the internal network.
 - Splunk and Wazuh are installed on separate snapshots of the Ubuntu server to ensure isolation.
 
-![Lab Setup](../docs/images/overview/lab_setup.png)
+![Lab Setup](../Docs/images/Overview/Overview.png)
 
 ## 3. Splunk SIEM Setup
 Splunk Enterprise (version 9.2.1) was installed on the Ubuntu server (192.168.254.129) using an automated script.
@@ -48,9 +48,9 @@ Splunk Enterprise (version 9.2.1) was installed on the Ubuntu server (192.168.25
    - Access the Splunk web interface at `http://192.168.254.129:8000`.
    - Confirm the dashboard is accessible.
 
-![Splunk Dashboard](../docs/images/splunk/splunk_dashboard.png)
+![Splunk Dashboard](../Docs/images/Splunk/splunk_dashboard.png)
 
-For script details, see [splunk_setup.sh](../scripts/splunk_setup.sh).
+For script details, see [splunk_setup.sh](../Scripts/splunk_setup.sh).
 
 ## 4. Splunk Forwarder Configuration
 Splunk Universal Forwarders were installed on the Windows 10 (192.168.254.150) and Kali Linux (192.168.254.140) targets to send logs to the Splunk server.
@@ -59,7 +59,7 @@ Splunk Universal Forwarders were installed on the Windows 10 (192.168.254.150) a
 1. **Install Forwarder**:
    - Download and install the Splunk Universal Forwarder MSI package.
 2. **Configure Inputs**:
-   - Copy [inputs_windows.conf](../configs/splunk/inputs_windows.conf) to `C:\Program Files\SplunkUniversalForwarder\etc\system\local\inputs.conf`.
+   - Copy [inputs_windows.conf](../Configs/splunk/inputs_windows.conf) to `C:\Program Files\SplunkUniversalForwarder\etc\system\local\inputs.conf`.
    - Monitors Windows Security Event Logs (`WinEventLog://Security`).
 3. **Restart Forwarder**:
    ```bash
@@ -70,7 +70,7 @@ Splunk Universal Forwarders were installed on the Windows 10 (192.168.254.150) a
 1. **Install Forwarder**:
    - Download and extract the Splunk Universal Forwarder to `/opt/splunkforwarder`.
 2. **Configure Inputs**:
-   - Copy [inputs_kali.conf](../configs/splunk/inputs_kali.conf) to `/opt/splunkforwarder/etc/system/local/inputs.conf`.
+   - Copy [inputs_kali.conf](../Configs/Splunk/inputs_kali.conf) to `/opt/splunkforwarder/etc/system/local/inputs.conf`.
    - Monitors `/var/log/auth.log` (SSH) and `/var/log/vsftpd.log` (FTP).
 3. **Restart Forwarder**:
    ```bash
@@ -93,9 +93,9 @@ Wazuh (version 4.11) was installed on a separate Ubuntu server snapshot (192.168
    - Access the Wazuh dashboard at `https://192.168.254.129:443`.
    - Confirm services (manager, indexer, dashboard) are running.
 
-![Wazuh Dashboard](../docs/images/wazuh/wazuh_dashboard.png)
+![Wazuh Dashboard](../Docs/images/Wazuh/wazuh_dashboard.png)
 
-For script details, see [wazuh_setup.sh](../scripts/wazuh_setup.sh).
+For script details, see [wazuh_setup.sh](../Scripts/wazuh_setup.sh).
 
 ## 6. Wazuh Agent Configuration
 Wazuh agents were installed on the Windows 10 (192.168.254.150) and Kali Linux (192.168.254.140) targets to send logs to the Wazuh manager.
@@ -104,7 +104,7 @@ Wazuh agents were installed on the Windows 10 (192.168.254.150) and Kali Linux (
 1. **Install Agent**:
    - Download and install the Wazuh agent MSI package.
 2. **Configure Agent**:
-   - Copy [ossec_windows.conf](../configs/wazuh/ossec_windows.conf) to `C:\Program Files (x86)\ossec-agent\ossec.conf`.
+   - Copy [ossec_windows.conf](../Configs/wazuh/ossec_windows.xml) to `C:\Program Files (x86)\ossec-agent\ossec.conf`.
    - Monitors Windows Security Event Logs.
 3. **Restart Agent**:
    ```bash
@@ -116,7 +116,7 @@ Wazuh agents were installed on the Windows 10 (192.168.254.150) and Kali Linux (
 1. **Install Agent**:
    - Install the Wazuh agent via `apt`.
 2. **Configure Agent**:
-   - Copy [ossec_kali.conf](../configs/wazuh/ossec_kali.conf) to `/var/ossec/etc/ossec.conf`.
+   - Copy [ossec_kali.conf](../Configs/wazuh/ossec_kali.xml) to `/var/ossec/etc/ossec.conf`.
    - Monitors `/var/log/auth.log` and `/var/log/vsftpd.log`.
 3. **Restart Agent**:
    ```bash
@@ -144,10 +144,9 @@ Brute-force attacks were simulated from the Kali Linux attacker machine (192.168
 2. **Verify Attacks**:
    - Check `/var/log/attack_simulation.log` for attack outputs.
 
-![SMB Attack](../docs/images/attacks/attack_hydra_smb.jpeg)
-![LLMNR Attack](../docs/images/attacks/attack_responder_llmnr.jpeg)
 
-For script details, see [attack_simulation.sh](../scripts/attack_simulation.sh).
+
+For script details, see [attack_simulation.sh](../Scripts/attack_simulation.sh).
 
 ## 8. Log Analysis
 Logs from the attacks were analyzed in Splunk and Wazuh to detect security events.
@@ -158,24 +157,24 @@ Logs from the attacks were analyzed in Splunk and Wazuh to detect security event
   - Sourcetype: `WinEventLog:Security`
   - Detected failed login attempts (EventCode 4625).
   - Visualized attack spikes in the dashboard.
-  ![Windows Logs](../docs/images/splunk/splunk_logs_windows.png)
+  ![Windows Logs](../Docs/images/Splunk/splunk_logs_windows.png)
 - **Kali Linux**:
   - Sourcetypes: `linux_secure` (SSH), `vsftpd_log` (FTP)
   - Detected authentication failures.
-  ![Kali Logs](../docs/images/splunk/splunk_logs_kali.png)
+  ![Kali Logs](../Docs/images/Splunk/splunk_logs_kali.png)
 
 ### Wazuh Analysis
 - **Dashboard**: Security Events module
 - **Windows 10**:
   - Alerts for brute-force attempts (e.g., Rule ID 60103).
-  ![Windows Alerts](../docs/images/wazuh/wazuh_alerts_windows.png)
+  ![Windows Alerts](../Docs/images/Wazuh/wazuh_alerts_windows.png)
 - **Kali Linux**:
   - Alerts for SSH (Rule ID 5710), FTP, and HTTP scanning (Rule ID 31101).
-  ![Kali Alerts](../docs/images/wazuh/wazuh_alerts_kali.png)
+  ![Kali Alerts](../Docs/images/Wazuh/wazuh_alerts_kali.png)
 
 ## 9. Conclusion
 This lab demonstrated the capabilities of Splunk and Wazuh in detecting and analyzing security events in a controlled environment. The automated scripts and configurations provided streamline the setup process, making it reproducible for educational purposes.
 
 **Security Note**: This project is for **educational purposes only**. Do not use in production or against systems without permission.
 
-For additional details, see [LAB2.docx](../docs/LAB2.docx) (Word format).
+For additional details, see [LAB2.docx](../Docs/LAB2.docx) (Word format).
