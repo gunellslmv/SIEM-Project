@@ -1,6 +1,6 @@
 # SIEM Lab: Splunk and Wazuh Setup, Configuration, and Attack Simulation
 
-![Lab Setup](docs/images/overview/lab_setup.png)
+![Lab Setup](Docs/images/overview/lab_setup.png)
 
 ## 📖 Overview
 This project demonstrates the setup, configuration, and testing of two Security Information and Event Management (SIEM) tools—**Splunk Enterprise** (community edition) and **Wazuh**—on an Ubuntu server. It includes deploying agents on Windows 10 and Kali Linux target machines, simulating brute-force attacks, and analyzing the resulting logs to detect security events.
@@ -101,14 +101,14 @@ sudo ./scripts/attack_simulation.sh
 ## 📸 Screenshots
 | Screenshot | Description |
 |------------|-------------|
-| ![Lab Setup](docs/images/overview/lab_setup.png) | Network topology of the lab environment (SIEM Server, targets, attacker). |
-| ![Splunk Dashboard](docs/images/splunk/splunk_dashboard.png) | Splunk web interface showing the main dashboard after setup. |
-| ![Wazuh Dashboard](docs/images/wazuh/wazuh_dashboard.png) | Wazuh dashboard displaying security events and alerts. |
-| ![SMB Attack](docs/images/attacks/attack_hydra_smb.jpeg) | Hydra brute-force attack output targeting Windows 10 SMB service. |
-| ![Windows Logs](docs/images/splunk/splunk_logs_windows.png) | Splunk analysis of Windows 10 Security Event Logs (e.g., failed logins). |
+| ![Lab Setup](Docs/images/overview/lab_setup.png) | Network topology of the lab environment (SIEM Server, targets, attacker). |
+| ![Splunk Dashboard](Docs/images/splunk/splunk_dashboard.png) | Splunk web interface showing the main dashboard after setup. |
+| ![Wazuh Dashboard](Docs/images/wazuh/wazuh_dashboard.png) | Wazuh dashboard displaying security events and alerts. |
+| ![SMB Attack](Docs/images/attacks/attack_hydra_smb.jpeg) | Hydra brute-force attack output targeting Windows 10 SMB service. |
+| ![Windows Logs](Docs/images/splunk/splunk_logs_windows.png) | Splunk analysis of Windows 10 Security Event Logs (e.g., failed logins). |
 
 ## 📝 Documentation
-Detailed setup, configuration, and testing steps are in [docs/LAB2.md](docs/LAB2.md) (Markdown) or [docs/LAB2.docx](docs/LAB2.docx) (Word format).
+Detailed setup, configuration, and testing steps are in [docs/LAB2.md](Docs/LAB2.md) (Markdown) or [docs/LAB2.docx](Docs/LAB2.docx) (Word format).
 
 ## 🛡️ Security Note
 This project is for **educational purposes only**. Do not use in production environments or against systems without explicit permission.
