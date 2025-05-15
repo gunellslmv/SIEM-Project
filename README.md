@@ -100,11 +100,11 @@ sudo ./scripts/attack_simulation.sh
 ## 📸 Screenshots
 | Screenshot | Description |
 |------------|-------------|
-| ![Lab Setup](Docs/images/overview/lab_setup.png) | Network topology of the lab environment (SIEM Server, targets, attacker). |
-| ![Splunk Dashboard](Docs/images/splunk/splunk_dashboard.png) | Splunk web interface showing the main dashboard after setup. |
-| ![Wazuh Dashboard](Docs/images/wazuh/wazuh_dashboard.png) | Wazuh dashboard displaying security events and alerts. |
-| ![SMB Attack](Docs/images/attacks/attack_hydra_smb.jpeg) | Hydra brute-force attack output targeting Windows 10 SMB service. |
-| ![Windows Logs](Docs/images/splunk/splunk_logs_windows.png) | Splunk analysis of Windows 10 Security Event Logs (e.g., failed logins). |
+| ![Lab Setup](Docs/images/Overview/Overview.png) | Network topology of the lab environment (SIEM Server, targets, attacker). |
+| ![Splunk Dashboard](Docs/images/Splunk/splunk_dashboard.png) | Splunk web interface showing the main dashboard after setup. |
+| ![Wazuh Dashboard](Docs/images/Wazuh/wazuh_dashboard.png) | Wazuh dashboard displaying security events and alerts. |
+| ![SMB Attack](Docs/images/Attacks/attack_hydra_smb.jpeg) | Hydra brute-force attack output targeting Windows 10 SMB service. |
+| ![Windows Logs](Docs/images/Splunk/splunk_logs_windows.png) | Splunk analysis of Windows 10 Security Event Logs (e.g., failed logins). |
 
 ## 📝 Documentation
 Detailed setup, configuration, and testing steps are in [docs/LAB2.md](Docs/LAB2.md) (Markdown) or [docs/LAB2.docx](Docs/LAB2.docx) (Word format).
