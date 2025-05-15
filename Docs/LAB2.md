@@ -144,8 +144,7 @@ Brute-force attacks were simulated from the Kali Linux attacker machine (192.168
 2. **Verify Attacks**:
    - Check `/var/log/attack_simulation.log` for attack outputs.
 
-![SMB Attack](../Docs/images/Attacks/attack_hydra_ssh_kali.jpeg)
-![LLMNR Attack](../docs/images/attacks/attack_hydra_rdp.jpeg)
+
 
 For script details, see [attack_simulation.sh](../Scripts/attack_simulation.sh).
 
