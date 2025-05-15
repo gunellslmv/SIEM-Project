@@ -1,6 +1,5 @@
 # SIEM Lab: Splunk and Wazuh Setup, Configuration, and Attack Simulation
 
-![Lab Setup](Docs/images/overview/lab_setup.png)
 
 ## 📖 Overview
 This project demonstrates the setup, configuration, and testing of two Security Information and Event Management (SIEM) tools—**Splunk Enterprise** (community edition) and **Wazuh**—on an Ubuntu server. It includes deploying agents on Windows 10 and Kali Linux target machines, simulating brute-force attacks, and analyzing the resulting logs to detect security events.
